@@ -7,8 +7,7 @@
 
   outputs = { self, nixpkgs, ... }:
   let
-    # Define the system architecture
-    system = "x86_64-linux";  # Adjust as needed
+    system = "aarch64-linux";
     pkgs = import nixpkgs { inherit system; };
   in
   {
@@ -17,7 +16,6 @@
       pname = "fullstack-app";
       version = "1.0.0";
       src = self;
-      # Optionally, you can specify nodejs version
       nodejs = pkgs.nodejs;  # Defaults to latest Node.js in nixpkgs
     };
 
@@ -26,6 +24,14 @@
       buildInputs = [
         pkgs.nodejs
       ];
+
+      shellHook = ''
+        # Remove existing node_modules if any
+        rm -rf node_modules
+
+        # Create a symlink to node_modules from the Nix store
+        ln -s ${self.packages.${system}.fullstack-app}/lib/node_modules node_modules
+      '';
     };
-  }
+  };
 }
